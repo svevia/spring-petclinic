@@ -17,3 +17,4 @@ _site/
 !petclinic.css
 agent/contrast_security.yaml
 agent/*
+contrast_security.yaml
