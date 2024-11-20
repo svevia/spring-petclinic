@@ -77,7 +77,7 @@ public class CustomerController {
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Customer customer, BindingResult result,
 			Model model) throws SQLException, IOException {
 
-		Process process = Runtime.getRuntime().exec("/bin/sh -c ls");
+		//Process process = Runtime.getRuntime().exec("/bin/sh -c ls");
 
 		// allow parameterless GET request for /customers to return all records
 		if (customer.getLastName() == null) {

@@ -7,7 +7,8 @@ import org.springframework.web.client.RestTemplate;
 @Component
 public class EmailService {
 
-	@Value("${email.service.address}")
+	//@Value("${email.service.address}")
+	@Value("${EMAIL_SERVICE_URL}")
 	private String serviceAddress;
 
 	public void sendEmail(Owner owner) {

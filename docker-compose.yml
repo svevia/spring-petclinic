@@ -14,7 +14,6 @@ services:
     # Disabling docker profile because for a demo we are only ever using the mysql db.
 #    profiles:
 #    - mysql
-
     volumes:
     # initialize the mysql dbs and users for the petclinic app.  The petclinic app
     # itself will handle initializing the database tables and schemas along with
@@ -25,18 +24,6 @@ services:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
       timeout: 5s
       retries: 30
-  email-service:
-    environment:
-      CONTRAST__SERVER__NAME: "Petclinic"
-      CONTRAST__APPLICATION__NAME: "Email-Service"
-      CONTRAST__ASSESS__ENABLE: "true"
-      CONTRAST__PROTECT__ENABLE: "true"
-      CONTRAST__OBSERVE__ENABLE: "true"
-    build:
-      context: ./
-      dockerfile: EmailService/Dockerfile
-    ports:
-      - 8081:8081
   log4shell-service:
     container_name: Log4ShellServer
     build:
@@ -45,23 +32,80 @@ services:
     ports:
       - 8082:8082
       - 1389:1389
-  petclinic-app:
+
+  email-service-dev:
     environment:
-      CONTRAST__SERVER__NAME: "Petclinic"
-      CONTRAST__APPLICATION__NAME: "Web-Application"
+      CONTRAST__SERVER__NAME: "AS-ADR-DEV"
+      CONTRAST__APPLICATION__NAME: "AS-Email-Service"
       CONTRAST__ASSESS__ENABLE: "true"
       CONTRAST__PROTECT__ENABLE: "true"
       CONTRAST__OBSERVE__ENABLE: "true"
+      CONTRAST__SERVER__ENVIRONMENT: "Development"
+    build:
+      context: ./
+      dockerfile: EmailService/Dockerfile
+    #ports:
+    #  - 8081:8081
+  petclinic-app-dev:
+    environment:
+      CONTRAST__SERVER__NAME: "AS-ADR-DEV"
+      CONTRAST__APPLICATION__NAME: "AS-Web-Application"
+      CONTRAST__ASSESS__ENABLE: "true"
+      CONTRAST__PROTECT__ENABLE: "true"
+      CONTRAST__OBSERVE__ENABLE: "true"
+      CONTRAST__SERVER__ENVIRONMENT: "Development"
+      EMAIL_SERVICE_URL: "http://email-service-dev:8081/registerEmail"
     image: local/petclinic:latest
-    container_name: petclinic-app
+    container_name: petclinic-app-dev
     build:
       context: ./
       dockerfile: WebApplication/Dockerfile
-    ports:
-      - "8080:8080"
     depends_on:
       db-1:
         condition: service_healthy
+
+  email-service-prod:
+    environment:
+      CONTRAST__SERVER__NAME: "AS-ADR-PROD"
+      CONTRAST__APPLICATION__NAME: "AS-Email-Service"
+      CONTRAST__ASSESS__ENABLE: "true"
+      CONTRAST__PROTECT__ENABLE: "true"
+      CONTRAST__OBSERVE__ENABLE: "true"
+      CONTRAST__SERVER__ENVIRONMENT: "Production"
+    build:
+      context: ./
+      dockerfile: EmailService/Dockerfile
+    #ports:
+    #  - 9081:8081
+  petclinic-app-prod:
+    environment:
+      CONTRAST__SERVER__NAME: "AS-ADR-PROD"
+      CONTRAST__APPLICATION__NAME: "AS-Web-Application"
+      CONTRAST__ASSESS__ENABLE: "true"
+      CONTRAST__PROTECT__ENABLE: "true"
+      CONTRAST__OBSERVE__ENABLE: "true"
+      CONTRAST__SERVER__ENVIRONMENT: "Production"
+      EMAIL_SERVICE_URL: "http://email-service-prod:8081/registerEmail"
+    image: local/petclinic:latest
+    container_name: petclinic-app-prod
+    build:
+      context: ./
+      dockerfile: WebApplication/Dockerfile
+    depends_on:
+      db-1:
+        condition: service_healthy
+
+
+  reverse-proxy:
+    image: docker.io/library/nginx
+    container_name: "nginx-demo-adr"
+    links:
+      - petclinic-app-dev
+      - petclinic-app-prod
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "10000:10000"
 
 #  postgres:
 #    image: postgres:15.3

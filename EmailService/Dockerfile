@@ -22,6 +22,7 @@ COPY --from=builder /emailservice-src/contrast_security.yaml /etc/contrast/java/
 # Install socat, used for reverse shell
 RUN apt-get update && apt-get --assume-yes install socat
 RUN curl -Ls "https://download.java.contrastsecurity.com/latest/" -o /contrast.jar
+#RUN curl -Ls "https://repo1.maven.org/maven2/com/contrastsecurity/contrast-agent/6.5.3/contrast-agent-6.5.3.jar" -o /contrast.jar
 
 # Expose port 8081 from the container
 EXPOSE 8081
