@@ -32,7 +32,15 @@ Start the app in a set of docker containers (1 app + 1 database server with 2 db
 docker compose build \
 docker compose up 
 
-Browse to localhost:8080
+Add following lines to `/etc/hosts`
+```
+127.0.0.1 dev.petclinic
+127.0.0.1 prod.petclinic
+```
+
+Browse to  http://dev.petclinic for dev
+Browse to  http://prod.petclinic for prod
+
 
 ## Authenticating and Authorizing:
 There are 3 different users with varying levels of permissions. 
