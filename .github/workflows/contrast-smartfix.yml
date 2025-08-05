@@ -23,8 +23,6 @@ on:
   pull_request:
     types:
       - closed
-  schedule:
-     - cron: '0 0 * * *' # <-- Customer configured schedule
   workflow_dispatch: # Allows manual triggering
 
 permissions:
