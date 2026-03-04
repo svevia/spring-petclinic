@@ -163,4 +163,27 @@ public class CustomerController {
 		return "welcome";
 	}
 
+	/**
+	 * Search customers by email - contains SQL injection vulnerability for testing.
+	 * @param email The email to search for
+	 * @return ModelAndView with search results
+	 * @throws SQLException if sql execution fails
+	 */
+	@GetMapping("/customers/search-by-email")
+	public ModelAndView searchCustomerByEmail(@RequestParam("email") String email) throws SQLException {
+		ModelAndView mav = new ModelAndView("customers/customersList");
+		
+		// VULNERABLE: Direct string concatenation in SQL query - SQL Injection!
+		try (Connection connection = dataSource.getConnection(); 
+			 Statement statement = connection.createStatement()) {
+			String query = "SELECT * FROM customers WHERE email = '" + email + "'";
+			var resultSet = statement.executeQuery(query);
+			
+			// Process results (simplified for demo)
+			mav.addObject("message", "Search executed for email: " + email);
+		}
+		
+		return mav;
+	}
+
 }
